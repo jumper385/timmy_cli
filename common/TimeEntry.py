@@ -20,6 +20,19 @@ class TimeEntry:
         self.duration_sec_override = None
         self.is_submitted = False
 
+    def __str__(self):
+        display_string = []
+        display_string.append(f"START: {self.start_ts}")
+        if self.end_ts:
+            display_string.append(f"END: {self.end_ts}")
+            duration_sec = self.duration_sec
+            duration_hrs = round(self.duration_sec/3600,5)
+            display_string.append(f"DURATION: {duration_hrs} hr(s)")
+        if self.note:
+            display_string.append(f"NOTE: {self.note}")
+
+        return "\r\n".join(display_string)
+
     def set_end_ts(self, end_date_string, end_time_string):
         """set the start date and time.
 
@@ -31,11 +44,12 @@ class TimeEntry:
             end_date = self.parse_date_string(end_date_string)
             end_seconds_into_day = self.parse_time_string(end_time_string)
             self.end_ts = end_date + end_seconds_into_day
+            self.duration_sec_override = None
         except ValueError as err:
             self.end_ts = None
             raise ValueError(err)
 
-    def set_duration_sec(self, duration_string):
+    def set_duration(self, duration_string):
 
         if not self.start_ts:
             raise ValueError("self.start_ts is missing...")
@@ -58,10 +72,12 @@ class TimeEntry:
         today = datetime.now().replace(hour=0, minute=0, second=0,
                                        microsecond=0)
 
-        if date_string == "yesterday":
-            return today - timedelta(days=1)
         if date_string == "today":
             return today
+        if date_string == "yesterday":
+            return today - timedelta(days=1)
+        if date_string == "tomorrow":
+            return today + timedelta(days=1)
         if date_string == "last week":
             return today - timedelta(days = 7)
         if date_string == "last fortnight":
@@ -100,6 +116,10 @@ class TimeEntry:
 
         """
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+        if time_string in "now":
+            delta = datetime.now().replace(second=0, microsecond=0) - today
+            return delta
 
         if time_string in ["noon", "lunch", "lunch time"]:
             delta = datetime.now().replace(hour=12, minute=0, second=0, microsecond=0) - today

@@ -5,6 +5,7 @@ from common.TimeEntry import TimeEntry
 @pytest.mark.parametrize("date_entry, intended_date", [
     ('yesterday', datetime.now() - timedelta(days=1)),
     ('today', datetime.now()),
+    ('tomorrow', datetime.now() + timedelta(days=1)),
     ('last week', datetime.now() - timedelta(days=7)),
     ('last fortnight', datetime.now() - timedelta(days=14)),
     ('3 days ago', datetime.now() - timedelta(days=3)),
@@ -13,8 +14,7 @@ from common.TimeEntry import TimeEntry
     ('3 weeks ago', datetime.now() - timedelta(days=21)),
     ('12/8/24', datetime.strptime("12/08/24", "%d/%m/%y")),
     ('3/8/2024', datetime.strptime("3/08/24", "%d/%m/%y")),
-    ])
-
+])
 def test_parse_date_entry(date_entry, intended_date):
     """
     The script, when inputting time entries, must parse the following
@@ -168,7 +168,7 @@ def test_calculate_duration_to_seconds(start_date, start_time, end_date, end_tim
     ])
 def test_end_ts_with_duration(start_date, start_time, duration_override, intended_end_ts):
     time_entry = TimeEntry(start_date, start_time)
-    time_entry.set_duration_sec(duration_override)
+    time_entry.set_duration(duration_override)
     assert time_entry.end_ts == intended_end_ts, f"{time_entry.end_ts} is not equal to intended {intended_end_ts} after {duration_override} was applied"
 
 @pytest.mark.parametrize("note", ["this is a note", '\this is a Note'])
@@ -180,8 +180,34 @@ def test_add_note(note):
     time_entry.set_note(note)
     assert time_entry.note == note.strip(), f"{time_entry.note} not equal to the intended {note}"
 
-def test_dir():
-    time_entry = TimeEntry("today","lunch")
-    time_entry.set_duration_sec("3s")
-    print()
-    print([*filter(lambda x: "__" not in x, dir(time_entry))])
+def test_duration_override():
+    """
+    When overrideing the duration when a time is set, the new duration
+    must be the duratino override. The end_ts must be updated
+    accordingly
+    """
+    time_entry = TimeEntry("yesterday","lunch")
+    time_entry.set_end_ts("today", "lunch")
+    time_entry.set_duration("1hrs")
+    assert time_entry.duration_sec == 3600, "The duration was not overridden..."
+
+def test_end_ts_override():
+    """
+    When setting the end_ts, the duration properpty must output the
+    updated end_ts duration NOT the old duration value...
+    """
+    time_entry = TimeEntry("yesterday", "lunch")
+    time_entry.set_duration("1hr")
+    time_entry.set_end_ts("today", "midnight")
+
+    duration_hrs = time_entry.duration_sec / 3600
+
+    if (duration_hrs != 12):
+
+        # Check this fails for this implementation...
+        if (time_entry.duration_sec_override):
+            pytest.fail("time_entry.end_ts didnt reset the time_entry.duration_sec_override property...")
+
+        pytest.fail(f"duration of {duration_hrs} isnt 12hrs")
+
+    pass
