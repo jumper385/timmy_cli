@@ -40,6 +40,7 @@ def test_parse_date_entry(date_entry, intended_date):
     ("lunch", datetime.now().replace(hour=12, minute=0, second=0, microsecond=0)),
     ("lunch time", datetime.now().replace(hour=12, minute=0, second=0, microsecond=0)),
     ("midnight", datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)),
+    ("now", datetime.now().replace(second=0, microsecond=0)),
     ("1hr ago", (datetime.now().replace(second=0, microsecond=0) - timedelta(hours=1))),
     ("1 hr ago", (datetime.now().replace(second=0, microsecond=0) - timedelta(hours=1))),
     ("2hrs ago", (datetime.now().replace(second=0, microsecond=0) - timedelta(hours=2))),
