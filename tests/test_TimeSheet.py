@@ -2,10 +2,11 @@ import subprocess
 import pytest
 import sqlite3
 
+from common.TimeEntry import TimeEntry
 from common.TimeSheet import TimeSheet
 from common.DBHolder import DB
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def db():
     db_obj = DB("delete_test.db")
     yield db_obj
@@ -33,3 +34,17 @@ def test_check_db_tables(db, table_name):
     result = db.cursor.fetchone()
     if not result:
         pytest.fail(f"Table {table_name} wasnt created...")
+
+@pytest.mark.parametrize("table_name", ["time_entry"])
+@pytest.mark.parametrize("start_date, start_time, end_date, end_time, note", [
+    ("today","lunch", "tomorrow","lunch", "THIS IS A NOTE")
+])
+def test_create_db_entry(db, table_name, start_date, start_time, end_date, end_time, note):
+
+    timesheet = TimeSheet(db.path)
+    time_entry = TimeEntry(start_date, start_time, end_date, end_time, note)
+
+    timesheet.insert_time_entry(time_entry)
+
+    result = db.find(table_name, "description", note)
+    assert len(result) == 1, "Failed to create an entry"

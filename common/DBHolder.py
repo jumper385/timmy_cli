@@ -18,6 +18,24 @@ class DB:
         else:
             raise Exception(f"failed to check if {self.path} exists...")
 
+    def find(self, table_name, key, value):
+        """
+        finds the row in the table w.r.t to the table, the key and a search value within the key
+
+        Parameters:
+            table_name (string): The table name within the db
+            key (string): The key to search within the db
+            value (arbitrary): A search value for the key
+
+        Returns:
+            result (row data): The table entry
+
+        """
+        cmd = f"SELECT * FROM {table_name} WHERE {key} = ?;"
+        self.cursor.execute(cmd, (value,))
+        result = self.cursor.fetchall()
+        return result
+
     def delete(self):
 
         if not self.exists:
