@@ -27,7 +27,7 @@ def timmy_enter(
         end_time = typer.prompt("End Time")
         time_entry.set_end_ts(end_date, end_time)
 
-    table = Table("start date", "start time", "duration", "end date", "end time", "description")
+    table = Table("start date", "start time", "duration (hrs)", "end date", "end time", "description")
     start_date = time_entry.start_ts.strftime("%d-%m-%y")
     start_time = time_entry.start_ts.strftime("%H:%M")
 
