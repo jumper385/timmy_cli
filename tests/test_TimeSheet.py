@@ -36,15 +36,25 @@ def test_check_db_tables(db, table_name):
         pytest.fail(f"Table {table_name} wasnt created...")
 
 @pytest.mark.parametrize("table_name", ["time_entry"])
-@pytest.mark.parametrize("start_date, start_time, end_date, end_time, note", [
-    ("today","lunch", "tomorrow","lunch", "THIS IS A NOTE")
+@pytest.mark.parametrize("table_field, field_value", [
+    ("description", "abc"),
+    ("category","abc"),
+    ("client", "test")
 ])
-def test_create_db_entry(db, table_name, start_date, start_time, end_date, end_time, note):
+@pytest.mark.parametrize("start_date, start_time, end_date, end_time", [
+    ("today","lunch", "tomorrow","lunch")
+])
+def test_create_db_entry(db, table_name, start_date, start_time, end_date, end_time, table_field, field_value):
 
     timesheet = TimeSheet(db.path)
-    time_entry = TimeEntry(start_date, start_time, end_date, end_time, note)
+
+    time_entry = TimeEntry(start_date, start_time, end_date, end_time)
+    if (table_field == "description"):
+        getattr(time_entry, f"set_note")(field_value)
+    else:
+        getattr(time_entry, f"set_{table_field}")(field_value)
 
     timesheet.insert_time_entry(time_entry)
 
-    result = db.find(table_name, "description", note)
+    result = db.find(table_name, table_field, field_value)
     assert len(result) == 1, "Failed to create an entry"
