@@ -18,7 +18,7 @@ class TimeEntry:
             raise ValueError(f"end time {end_time_string} was received but not end_date_string")
 
         if end_date_string and end_time_string:
-            self.end_ts = self.parse_date_string(end_date_string, end_time_string)
+            self.end_ts = self.parse_date_string(end_date_string) + self.parse_time_string(end_time_string)
         else:
             self.end_ts = None
 
