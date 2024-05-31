@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from dateutil import parser
 
 class TimeEntry:
-    def __init__(self, start_date_string, start_time_string):
+    def __init__(self, start_date_string, start_time_string, end_date_string = None, end_time_string=None, note=None, category=None, client=None):
 
         # START PARAMETERS
         start_date = self.parse_date_string(start_date_string)
@@ -11,10 +11,21 @@ class TimeEntry:
         self.start_ts = start_date + start_seconds_into_day
 
         # ENDING PARAMETERS
-        self.end_ts = None
+        if end_date_string and not end_time_string:
+            raise ValueError(f"end date {end_date_string} was received but not end_time_string")
+
+        if not end_date_string and end_time_string:
+            raise ValueError(f"end time {end_time_string} was received but not end_date_string")
+
+        if end_date_string and end_time_string:
+            self.end_ts = self.parse_date_string(end_date_string) + self.parse_time_string(end_time_string)
+        else:
+            self.end_ts = None
 
         # Entry Description
-        self.note = None
+        self.note = note.strip() if note else None
+        self.category = category.strip() if category else None
+        self.client = client.strip() if client else None
 
         # OUTPUT PARAMETERS
         self.duration_sec_override = None
@@ -32,6 +43,10 @@ class TimeEntry:
             display_string.append(f"NOTE: {self.note}")
 
         return "\r\n".join(display_string)
+
+    @property
+    def csv_row_entry(self):
+        return [self.start_ts, self.duration_sec/3600, self.end_ts, self.notes, self.category]
 
     def set_end_ts(self, end_date_string, end_time_string):
         """set the start date and time.
@@ -60,6 +75,12 @@ class TimeEntry:
     def set_note(self, note_string):
         self.note = note_string.strip()
 
+    def set_category(self, category_string):
+        self.category = category_string.strip()
+
+    def set_client(self, client_string):
+        self.client = client_string.strip()
+
     @property
     def duration_sec(self):
         if self.duration_sec_override:
@@ -83,21 +104,20 @@ class TimeEntry:
         if date_string == "last fortnight":
             return today - timedelta(days = 14)
 
-        days_ago_match = re.match(r'(\d+)\s+days\s+ago', date_string)
-        weeks_ago_match = re.match(r'(\d+)\s+weeks\s+ago', date_string)
 
+        days_ago_match = re.match(r'(\d+)\s*d(ay)?(s)?\s?+ago', date_string)
         if days_ago_match:
             n_days = int(days_ago_match.group(1))
             return today - timedelta(days=n_days)
 
+        weeks_ago_match = re.match(r'(\d+)\s*w(ee)?(k)?(s)?\s?+ago', date_string)
         if weeks_ago_match:
             n_weeks = int(weeks_ago_match.group(1))
             return today - timedelta(weeks=n_weeks)
 
         try:
             parsed_date = parser.parse(date_string, dayfirst=True)
-            return parsed_date.replace(hour=0, minute=0, second=0,
-                                       microsecond=0)
+            return parsed_date.replace(hour=0, minute=0, second=0, microsecond=0)
         except ValueError:
             raise ValueError(f"Date format not recognised: {date_string}")
 
@@ -226,5 +246,8 @@ class TimeEntry:
         # Match and convert "a day"
         if re.search(r'\ba\s*day\b', duration_string, re.IGNORECASE):
             total_seconds += 86400
+
+        if total_seconds == 0:
+            raise ValueError(f"Failed to set duration with {duration_string} string")
 
         return total_seconds

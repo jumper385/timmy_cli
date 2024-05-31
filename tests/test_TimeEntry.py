@@ -10,8 +10,14 @@ from common.TimeEntry import TimeEntry
     ('last fortnight', datetime.now() - timedelta(days=14)),
     ('3 days ago', datetime.now() - timedelta(days=3)),
     ('4 days ago', datetime.now() - timedelta(days=4)),
+    ('4daysago', datetime.now() - timedelta(days=4)),
     ('2 weeks ago', datetime.now() - timedelta(days=14)),
     ('3 weeks ago', datetime.now() - timedelta(days=21)),
+    ('3 wks ago', datetime.now() - timedelta(days=21)),
+    ('3 w ago', datetime.now() - timedelta(days=21)),
+    ('3 wago', datetime.now() - timedelta(days=21)),
+    ('3wago', datetime.now() - timedelta(days=21)),
+    ('3wks ago', datetime.now() - timedelta(days=21)),
     ('12/8/24', datetime.strptime("12/08/24", "%d/%m/%y")),
     ('3/8/2024', datetime.strptime("3/08/24", "%d/%m/%y")),
 ])
@@ -172,14 +178,26 @@ def test_end_ts_with_duration(start_date, start_time, duration_override, intende
     time_entry.set_duration(duration_override)
     assert time_entry.end_ts == intended_end_ts, f"{time_entry.end_ts} is not equal to intended {intended_end_ts} after {duration_override} was applied"
 
-@pytest.mark.parametrize("note", ["this is a note", '\this is a Note'])
-def test_add_note(note):
+@pytest.mark.parametrize("method", ["note", "client", "category"])
+@pytest.mark.parametrize("text_to_write", ["this is a note", '\this is a Note', "\rdigism\n\r\t"])
+def test_details_set_entry(method, text_to_write):
     """
-    The module must strip the text then write it to the note.
+    The module must strip the text then write it to the text_to_write.
     """
     time_entry = TimeEntry("today", "lunch")
-    time_entry.set_note(note)
-    assert time_entry.note == note.strip(), f"{time_entry.note} not equal to the intended {note}"
+    getattr(time_entry, f"set_{method}")(text_to_write)
+    property_value = getattr(time_entry, method)
+    assert property_value == text_to_write.strip(), f"{property_value} not equal to the intended {text_to_write}"
+
+@pytest.mark.parametrize("method", ["note", "client", "category"])
+@pytest.mark.parametrize("text_to_write", ["this is a note", '\this is a Note', "\rdigism\n\r\t"])
+def test_details_init_entry(method, text_to_write):
+    """
+    The module, when initializing text details, must strip and save the text into the property...
+    """
+    time_entry = TimeEntry("today", "lunch", **{method: text_to_write})
+    property_value = getattr(time_entry, method)
+    assert property_value == text_to_write.strip(), f"{property_value} not equal to the intended {text_to_write}"
 
 def test_duration_override():
     """
