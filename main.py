@@ -4,6 +4,8 @@ from typing_extensions import Annotated
 from rich.console import Console
 from rich.table import Table
 
+from datetime import datetime, timedelta
+
 from common.TimeEntry import TimeEntry
 from common.TimeSheet import TimeSheet
 
@@ -33,7 +35,6 @@ def timmy_enter(
         end_time = typer.prompt("End Time")
         time_entry.set_end_ts(end_date, end_time)
 
-    table = Table("start date", "start time", "duration (hrs)", "end date", "end time", "description")
     start_date = time_entry.start_ts.strftime("%d-%m-%y")
     start_time = time_entry.start_ts.strftime("%H:%M")
 
@@ -42,11 +43,26 @@ def timmy_enter(
     end_date = time_entry.end_ts.strftime("%d-%m-%y")
     end_time = time_entry.end_ts.strftime("%H:%M")
 
-    table.add_row(start_date, start_time, duration_hrs, end_date, end_time, time_entry.note)
-    console.print(table)
-
     timesheet = TimeSheet("test.db")
     timesheet.insert_time_entry(time_entry)
+
+@app.command()
+def timmy_show():
+
+    timesheet = TimeSheet("test.db")
+
+    table = Table("start ts", "duration (hrs)", "end ts", "description", "client")
+    for row in timesheet.get_time_entries():
+        start_ts, duration_sec, end_ts, description, category, client = row
+        duration_hrs = round(duration_sec/3600, 5)
+        # 2024-05-28 12:00:00
+
+        start_ts = datetime.strptime(start_ts, '%Y-%m-%d %H:%M:%S').strftime("%d/%m/%Y %H:%M")
+        end_ts = datetime.strptime(end_ts, '%Y-%m-%d %H:%M:%S').strftime("%d/%m/%Y %H:%M")
+
+        table.add_row(start_ts, str(duration_hrs), end_ts, description, client)
+    console.print(table)
+
 
 if __name__ == "__main__":
     app()

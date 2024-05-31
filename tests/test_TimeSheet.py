@@ -1,3 +1,4 @@
+import time
 import subprocess
 import pytest
 import sqlite3
@@ -6,11 +7,11 @@ from common.TimeEntry import TimeEntry
 from common.TimeSheet import TimeSheet
 from common.DBHolder import DB
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def db():
     db_obj = DB("delete_test.db")
     yield db_obj
-    db_obj.delete()
+    # db_obj.delete()
 
 def test_create_db(db):
     """
@@ -58,3 +59,25 @@ def test_create_db_entry(db, table_name, start_date, start_time, end_date, end_t
 
     result = db.find(table_name, table_field, field_value)
     assert len(result) == 1, "Failed to create an entry"
+
+
+@pytest.mark.parametrize("start_date, start_time, end_date, end_time", [
+    ("today", "lunch", "tomorrow", "lunch")
+])
+def test_get_db_entries(db, start_date, start_time, end_date, end_time):
+
+    db.delete()
+
+    timesheet = TimeSheet(db.path)
+
+    for i in range(1,4):
+        time_entry = TimeEntry(start_date, start_time)
+        time_entry.set_note(f"line {i}")
+        time_entry.set_duration(f"{i} hrs")
+
+        timesheet.insert_time_entry(time_entry)
+
+    entries = timesheet.get_time_entries()
+    print(entries)
+
+    assert len(entries) == 3, f"more than 3 entreis are present - {len(entries)}"
