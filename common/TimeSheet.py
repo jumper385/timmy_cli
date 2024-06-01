@@ -1,10 +1,13 @@
+import os
 import sqlite3
+import subprocess
 from datetime import datetime
 from common.TimeEntry import TimeEntry
 
 class TimeSheet:
-    def __init__(self, sq3_path):
-        self.sq3_conn = sqlite3.connect(sq3_path)
+    def __init__(self, sq3_path = None):
+        self.sq3_path = sq3_path if sq3_path else self.find_db_path()
+        self.sq3_conn = sqlite3.connect(self.sq3_path)
         self.sq3_cursor = self.sq3_conn.cursor()
 
         self._create_tables_if_not_exist()
@@ -32,6 +35,62 @@ class TimeSheet:
             ))
 
         self.sq3_conn.commit()
+
+    def find_db_path(self):
+        """
+        Find a database starting with `timmy-time_XXXXXX.sqlite` in the local directory
+        If the database doesn't exist, it returns a database path to make
+
+        Returns:
+            sq3_path (string): The path to the sq3lite database path
+        """
+        cwd = self._get_cwd()
+        db_name = self._find_db_in_dir(cwd)
+
+        if not cwd:
+            raise Exception("Failed to find cwd")
+
+        if db_name:
+            return f"{cwd}/{db_name}"
+        else:
+            return f"{cwd}/timmy-time.sqlite"
+
+    @staticmethod
+    def _find_db_in_dir(directory_path):
+        """
+        Looks in a directory for timmy-time_XXXXX.sqlite.
+
+        Parameters:
+            directory_path (string): The path of the directory to search in
+
+        Returns:
+            db_name (string): if db is present, it returns the db name. else it returns none
+        """
+        files = os.listdir(directory_path)
+
+        if len(files) < 1:
+            return None
+
+        files_filtered = [*filter(lambda fn: "timmy-time" in fn, files)]
+        if len(files_filtered) < 1:
+            return None
+
+        return files_filtered[0].strip()
+
+    @staticmethod
+    def _get_cwd():
+        """
+        Gets the current workign directory
+
+        Returns:
+            cwd_path (string): THe current working directory
+        """
+        res = subprocess.run("pwd", shell=True, capture_output=True, check=True)
+        res.check_returncode()
+
+        cwd = res.stdout.decode()
+
+        return cwd.strip()
 
     def get_time_entries(self):
         """
