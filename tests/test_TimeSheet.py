@@ -9,7 +9,7 @@ from common.DBHolder import DB
 
 @pytest.fixture(scope="session")
 def db():
-    db_obj = DB("delete_test.db")
+    db_obj = DB("timmy-time.sqlite")
     yield db_obj
     # db_obj.delete()
 
@@ -78,6 +78,5 @@ def test_get_db_entries(db, start_date, start_time, end_date, end_time):
         timesheet.insert_time_entry(time_entry)
 
     entries = timesheet.get_time_entries()
-    print(entries)
 
     assert len(entries) == 3, f"more than 3 entreis are present - {len(entries)}"
