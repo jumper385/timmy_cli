@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-        name = "timmy-time",
+        name = "timmytimesheet",
         version = "0.1",
         description = "a basic timesheeting cli",
         author="jumper385 (Henry Chen)",
@@ -12,7 +12,7 @@ setup(
         keywords = ["timesheeting"],
         entry_points = {
             'console_scripts': [
-                'timmy-time=timmy.main:app']},
+                'timmy=timmy.main:app']},
         classifiers = [
             'Programming Language :: Python :: 3',
             'License :: OSI Approved :: MIT License',
