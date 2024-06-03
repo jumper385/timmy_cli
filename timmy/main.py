@@ -26,7 +26,7 @@ def enter(
     time_entry.set_client(client)
     time_entry.set_category(category)
 
-    task_end_type = typer.prompt("Use Duration (d) or End Time (t)")
+    task_end_type = typer.prompt("Use Duration (TYPE: 'd') or End Datetime (TYPE 't')")
     if task_end_type == "d":
         duration_string = typer.prompt("Duration of Work")
         time_entry.set_duration(duration_string)
