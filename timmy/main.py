@@ -13,7 +13,7 @@ app = typer.Typer()
 console = Console()
 
 @app.command()
-def timmy_enter(
+def enter(
         start_date_string: Annotated[str, typer.Option("--start-date", "-sd", prompt=True)],
         start_time_string: Annotated[str, typer.Option("--start-time", "-st", prompt=True)],
         description: Annotated[str, typer.Option("--desc", "-d", prompt=True)],
@@ -43,13 +43,13 @@ def timmy_enter(
     end_date = time_entry.end_ts.strftime("%d-%m-%y")
     end_time = time_entry.end_ts.strftime("%H:%M")
 
-    timesheet = TimeSheet("test.db")
+    timesheet = TimeSheet()
     timesheet.insert_time_entry(time_entry)
 
 @app.command()
-def timmy_show():
+def show():
 
-    timesheet = TimeSheet("test.db")
+    timesheet = TimeSheet()
 
     table = Table("start ts", "duration (hrs)", "end ts", "description", "client")
     for row in timesheet.get_time_entries():
