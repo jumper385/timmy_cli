@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
         name = "timmytimesheet",
-        version = "0.1.5",
+        version = "0.1.5.2",
         description = "a basic timesheeting cli",
         author="jumper385 (Henry Chen)",
         install_package_data=True,

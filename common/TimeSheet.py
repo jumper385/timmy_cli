@@ -111,7 +111,6 @@ class TimeSheet:
 
         self.sq3_cursor.execute(cmd)
         results = self.sq3_cursor.fetchall()
-        print(results)
 
         return results
 
