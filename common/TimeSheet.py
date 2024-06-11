@@ -107,6 +107,7 @@ class TimeSheet:
 
         """
         cmd = "SELECT start_ts, duration_sec, end_ts, description, category, client FROM time_entry"
+        cmd += " ORDER BY start_ts ASC"
 
         self.sq3_cursor.execute(cmd)
         results = self.sq3_cursor.fetchall()
