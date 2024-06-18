@@ -9,45 +9,40 @@ from datetime import datetime, timedelta
 from common.TimeEntry import TimeEntry
 from common.TimeSheet import TimeSheet
 
+import common.prompt_checking as pc
+
 app = typer.Typer()
 console = Console()
 
 @app.command()
-def enter(
-        start_date_string: Annotated[str, typer.Option("--start-date", "-sd", prompt=True)],
-        start_time_string: Annotated[str, typer.Option("--start-time", "-st", prompt=True)],
-        description: Annotated[str, typer.Option("--desc", "-d", prompt=True)],
-        client: Annotated[str, typer.Option("--client","-cl", prompt=True)],
-        category: Annotated[str, typer.Option("--category","-cat", prompt=True)],
-        ):
+def enter():
+
+    time_entry = None
+
+    start_date_string = pc.validated_prompter("Start Date", pc.check_date_entry)
+    start_time_string = pc.validated_prompter("Start Time", pc.check_time_entry)
 
     time_entry = TimeEntry(start_date_string, start_time_string)
+
+    task_end_type = pc.validated_prompter("Duration (type 'd') or DateTime (time 't')", pc.check_end_selection)
+
+    if task_end_type == "d":
+        duration_string = pc.validated_prompter("Duration", pc.check_duration)
+        time_entry.set_duration(duration_string)
+
+    elif task_end_type == "t":
+        end_date = pc.validated_prompter("End Date", pc.check_date_entry)
+        end_time = pc.validated_prompter("End Time", pc.check_time_entry)
+        time_entry.set_end_ts(end_date, end_time)
+
+    description = pc.validated_prompter("Description", None)
+    print(description)
+    client = pc.validated_prompter("Client", None)
+    category = pc.validated_prompter("Category", None)
+
     time_entry.set_note(description)
     time_entry.set_client(client)
     time_entry.set_category(category)
-
-    while True:
-        task_end_type = typer.prompt("Use Duration (TYPE: 'd') or End Datetime (TYPE 't')").strip()
-        if task_end_type == "d":
-            break
-        if task_end_type == "t":
-            break
-
-    if task_end_type == "d":
-        duration_string = typer.prompt("Duration of Work")
-        time_entry.set_duration(duration_string)
-    elif task_end_type == "t":
-        end_date = typer.prompt("End Date")
-        end_time = typer.prompt("End Time")
-        time_entry.set_end_ts(end_date, end_time)
-
-    start_date = time_entry.start_ts.strftime("%d-%m-%y")
-    start_time = time_entry.start_ts.strftime("%H:%M")
-
-    duration_hrs = str(round(time_entry.duration_sec / 3600, 5))
-
-    end_date = time_entry.end_ts.strftime("%d-%m-%y")
-    end_time = time_entry.end_ts.strftime("%H:%M")
 
     timesheet = TimeSheet()
     timesheet.insert_time_entry(time_entry)
