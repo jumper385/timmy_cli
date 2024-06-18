@@ -119,7 +119,7 @@ class TimeEntry:
             parsed_date = parser.parse(date_string, dayfirst=True)
             return parsed_date.replace(hour=0, minute=0, second=0, microsecond=0)
         except ValueError:
-            raise ValueError(f"Date format not recognised: {date_string}")
+            raise ValueError(f"DATE format not unparsable: {date_string}")
 
     @staticmethod
     def parse_time_string(time_string):
@@ -201,7 +201,7 @@ class TimeEntry:
             return delta - today
 
 
-        raise ValueError("Failed to parse the time...")
+        raise ValueError(f"Failed to parse the TIME. Inputted '{time_string}'")
 
     @staticmethod
     def parse_duration_string(duration_string):
@@ -248,6 +248,6 @@ class TimeEntry:
             total_seconds += 86400
 
         if total_seconds == 0:
-            raise ValueError(f"Failed to set duration with {duration_string} string")
+            raise ValueError(f"Failed to parse DURATION with {duration_string} string")
 
         return total_seconds

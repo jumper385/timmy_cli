@@ -26,7 +26,13 @@ def enter(
     time_entry.set_client(client)
     time_entry.set_category(category)
 
-    task_end_type = typer.prompt("Use Duration (TYPE: 'd') or End Datetime (TYPE 't')")
+    while True:
+        task_end_type = typer.prompt("Use Duration (TYPE: 'd') or End Datetime (TYPE 't')").strip()
+        if task_end_type == "d":
+            break
+        if task_end_type == "t":
+            break
+
     if task_end_type == "d":
         duration_string = typer.prompt("Duration of Work")
         time_entry.set_duration(duration_string)
@@ -63,6 +69,9 @@ def show():
         table.add_row(start_ts, str(duration_hrs), end_ts, description, client)
     console.print(table)
 
+@app.command()
+def version():
+    print("V0.1.1")
 
 if __name__ == "__main__":
     app()
