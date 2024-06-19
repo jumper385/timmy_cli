@@ -36,7 +36,6 @@ def enter():
         time_entry.set_end_ts(end_date, end_time)
 
     description = pc.validated_prompter("Description", None)
-    print(description)
     client = pc.validated_prompter("Client", None)
     category = pc.validated_prompter("Category", None)
 

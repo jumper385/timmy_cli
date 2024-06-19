@@ -20,11 +20,11 @@ def validated_prompter(prompt_text, validation_fn = None):
 
     while True:
 
-        prompt_message = f"{prompt_text}"
+        stateful_prompt_text = f"{prompt_text}"
         if try_count > 0:
-            prompt_message = f"Try again... {prompt_text} ({try_count} tries)"
+            stateful_prompt_text = f"Try again... {prompt_text} ({try_count} tries)"
 
-        user_input = typer.prompt(prompt_text)
+        user_input = typer.prompt(stateful_prompt_text)
 
         try:
 
