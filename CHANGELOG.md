@@ -1,3 +1,9 @@
+## 0.1.1 (2024-06-19)
+
+### Fix
+
+- **prompt_checking.py**: changed to output stateful text not prompt_text and updated var names
+
 ## 0.1.0 (2024-06-19)
 
 ### Feat
