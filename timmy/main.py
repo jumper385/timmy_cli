@@ -31,9 +31,13 @@ def enter():
         time_entry.set_duration(duration_string)
 
     elif task_end_type == "t":
-        end_date = pc.validated_prompter("End Date", pc.check_date_entry)
-        end_time = pc.validated_prompter("End Time", pc.check_time_entry)
-        time_entry.set_end_ts(end_date, end_time)
+        while True:
+            end_date = pc.validated_prompter("End Date", pc.check_date_entry)
+            end_time = pc.validated_prompter("End Time", pc.check_time_entry)
+            time_entry.set_end_ts(end_date, end_time)
+            if time_entry.end_ts > time_entry.start_ts:
+                break;
+            print(f"{end_date} and {end_time} is before {start_date_string} and {start_time_string}")
 
     description = pc.validated_prompter("Description", None)
     client = pc.validated_prompter("Client", None)
