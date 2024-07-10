@@ -1,3 +1,9 @@
+## 0.1.2 (2024-07-10)
+
+### Fix
+
+- **main.py**: added while loop on end_date/end_time entry that checks end_ts > start_ts
+
 ## 0.1.1 (2024-06-19)
 
 ### Fix
