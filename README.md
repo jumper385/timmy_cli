@@ -1,5 +1,5 @@
 # Timmy 
-Timmy is a python cli for timesheeting that has the following
+Timmy is a Python cli for timesheeting that has the following
 features:
 - Parses Timesheet Entries in terminal using 
 - Saves Timesheets to a text file
